@@ -17,26 +17,46 @@ class ViewController: UIViewController {
     @IBOutlet private weak var number1Switch: UISwitch!
     @IBOutlet private weak var number2Switch: UISwitch!
 
+    private var numberTextFields: [UITextField] {
+        [number1TextField, number2TextField]
+    }
+
+    private var numberSwitches: [UISwitch] {
+        [number1Switch, number2Switch]
+    }
+
+    private var numberLabels: [UILabel] {
+        [number1Label, number2Label]
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpTextField()
     }
 
     @IBAction private func tappedCalculateButton(_ sender: Any) {
-        let number1: Int = Int(number1TextField.text ?? "") ?? 0
-        let number2: Int = Int(number2TextField.text ?? "") ?? 0
-        let signedNumber1 = number1Switch.isOn ? -number1: number1
-        let signedNumber2 = number2Switch.isOn ? -number2: number2
-        number1Label.text = String(signedNumber1)
-        number2Label.text = String(signedNumber2)
-        calculatedResultLabel.text = String(signedNumber1 + signedNumber2)
+        let numbers = numberTextFields.map {
+            Int($0.text ?? "") ?? 0
+        }
+
+        let signedNumbers = zip(numberSwitches, numbers).map {
+            $0.isOn ? -$1 : $1
+        }
+
+        zip(numberLabels, signedNumbers).forEach {
+            $0.text = String($1)
+        }
+
+        calculatedResultLabel.text = String(signedNumbers.reduce(0, +))
     }
 
     private func setUpTextField() {
-        number1TextField.delegate = self
-        number2TextField.delegate = self
-        number1TextField.keyboardType = .numberPad
-        number2TextField.keyboardType = .numberPad
+        numberTextFields.forEach {
+            $0.delegate = self
+        }
+        numberTextFields.forEach {
+            $0.keyboardType = .numberPad
+        }
     }
 }
 
